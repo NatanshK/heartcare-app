@@ -86,7 +86,7 @@ export default function HomePage() {
         <header className="flex items-center justify-between border-b border-[#f4f0f1] px-10 py-3">
           {/* Left side: HeartCare Logo and Name */}
           <div className="flex items-center gap-4 text-[#181112]">
-            <div className="w-8 h-8"> {/* Your original HeartCare SVG logo */}
+            <div className="w-20 h-20"> {/* Your original HeartCare SVG logo */}
               <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_heartcare_logo)"> {/* Changed clipPath ID to be unique */}
                   <path
@@ -131,7 +131,7 @@ export default function HomePage() {
             {/* Hero */}
             <div className="flex flex-wrap justify-between gap-3 p-4">
               <div className="flex min-w-[18rem] flex-col gap-3">
-                <p className="text-[#181112] text-2xl font-bold">
+                <p className="text-[#181112] text-4xl font-bold">
                   Detect atrial fibrillation with ECG data
                 </p>
                 <p className="text-[#88636a] text-sm">
