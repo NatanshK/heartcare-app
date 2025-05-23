@@ -1,7 +1,87 @@
 // src/components/HomePage.js
-import React from 'react';
+import React, { useState } from 'react'; // Import useState
+
+// Access the API URL from environment variable
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function HomePage() {
+  // --- NEW STATE VARIABLES ---
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [fileName, setFileName] = useState('or drag and drop the file here'); // To display file name
+  const [predictionResult, setPredictionResult] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  // --- END OF NEW STATE VARIABLES ---
+
+  // --- NEW FUNCTION: Handle file selection ---
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.type === "text/csv" || file.name.toLowerCase().endsWith('.csv')) {
+        setSelectedFile(file);
+        setFileName(file.name);
+        setPredictionResult(null); // Reset previous result
+        setError(''); // Reset error
+      } else {
+        setSelectedFile(null);
+        setFileName('Please upload a valid .csv file');
+        setError('Invalid file type. Please upload a .csv file.');
+        event.target.value = null; // Reset file input
+      }
+    } else {
+      setSelectedFile(null);
+      setFileName('or drag and drop the file here');
+    }
+  };
+  // --- END OF NEW FUNCTION ---
+
+  // --- NEW FUNCTION: Handle analysis/API call ---
+  const handleStartAnalysis = async () => {
+    if (!selectedFile) {
+      setError('Please select a CSV file first.');
+      return;
+    }
+    if (!API_BASE_URL) {
+      setError('API URL is not configured. Please check environment variables.');
+      console.error('Error: REACT_APP_API_BASE_URL is not set.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    setPredictionResult(null);
+
+    const formData = new FormData();
+    // The key 'ecg_file' MUST match what your Flask backend expects: request.files['ecg_file']
+    formData.append('ecg_file', selectedFile);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/predict`, {
+        method: 'POST',
+        body: formData,
+        // Note: 'Content-Type' for FormData is set automatically by the browser.
+      });
+
+      setIsLoading(false);
+
+      const responseData = await response.json(); // Try to parse JSON regardless of response.ok
+
+      if (!response.ok) {
+        // Use error message from backend if available, otherwise use status text
+        const errorMessage = responseData.error || response.statusText || `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
+      }
+      
+      setPredictionResult(responseData);
+
+    } catch (err) {
+      console.error('API Call error:', err);
+      setIsLoading(false);
+      setError(err.message || 'Failed to get prediction. Check console for details.');
+    }
+  };
+  // --- END OF NEW FUNCTION ---
+
   return (
     <div
       className="relative flex w-full min-h-screen flex-col bg-white overflow-x-hidden"
@@ -10,6 +90,7 @@ export default function HomePage() {
       <div className="flex h-full flex-grow flex-col">
         {/* ─── HEADER ───────────────────────────────────────────────────── */}
         <header className="flex items-center justify-between border-b border-[#f4f0f1] px-10 py-3">
+          {/* ... your existing header code ... */}
           <div className="flex items-center gap-4 text-[#181112]">
             <div className="w-8 h-8">
               <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -22,7 +103,7 @@ export default function HomePage() {
                   />
                 </g>
                 <defs>
-                  <clipPath id="clip0">
+                  <clipPath id="clip0)">
                     <rect width="48" height="48" fill="white" />
                   </clipPath>
                 </defs>
@@ -48,7 +129,7 @@ export default function HomePage() {
         </header>
 
         {/* ─── MAIN CONTENT ─────────────────────────────────────────────── */}
-        <main className="flex flex-1 justify-center px-40 py-5">
+        <main className="flex flex-1 justify-center px-40 py-5"> {/* Consider reducing horizontal padding for smaller screens if needed */}
           <div className="flex max-w-[960px] flex-1 flex-col">
             {/* Hero */}
             <div className="flex flex-wrap justify-between gap-3 p-4">
@@ -66,39 +147,62 @@ export default function HomePage() {
             <section className="px-4">
               <h3 className="text-lg font-bold">Instructions for CSV format</h3>
               <p className="pb-3 pt-1 text-base">
-              Please ensure that the CSV file contains 12 columns, organized in the following order: I, II, III, aVR, aVL, aVF, V1, V2, V3, V4, V5, and V6. Each column must contain a minimum of 5000 rows, and the ECG frequency should be 500 Hz.
+              Please ensure that the CSV file contains a header row, followed by 5000 rows of data. The file should have 12 columns, organized in the following order: I, II, III, aVR, aVL, aVF, V1, V2, V3, V4, V5, and V6. The ECG frequency should be 500 Hz.
               </p>
               <button className="mb-6 rounded-xl bg-[#f4f0f1] px-5 py-3 font-bold">
-                Download sample CSV
+                Download sample CSV {/* This button needs functionality if you want it to work */}
               </button>
             </section>
 
             {/* File Upload */}
             <section className="px-4">
               <h3 className="text-lg font-bold pb-2 pt-4">Upload your CSV file</h3>
-              <label className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#e61942] px-5 py-3 text-white">
+              <label className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#e61942] px-5 py-3 text-white w-max"> {/* Added w-max for button size */}
                 <input
                   type="file"
-                  accept=".csv"
+                  accept=".csv,text/csv" // Be more specific with accept
                   className="hidden"
-                  onChange={(e) => console.log(e.target.files[0])}
+                  onChange={handleFileChange} // Connect to new handler
                 />
-                {/* folder icon */}
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
                   <path d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40ZM216,200H40V88H216Z"/>
                 </svg>
                 <span>Choose file</span>
               </label>
-              <p className="pb-3 pt-1">or drag and drop the file here</p>
-              <button className="rounded-xl bg-[#e61942] px-4 py-2 text-sm font-bold text-white">
-                Start analysis
+              {/* Display selected file name or placeholder */}
+              <p className="pb-3 pt-1 text-sm text-gray-600">{fileName}</p> 
+              
+              <button 
+                className="rounded-xl bg-[#e61942] px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+                onClick={handleStartAnalysis} // Connect to new handler
+                disabled={!selectedFile || isLoading} // Disable if no file or loading
+              >
+                {isLoading ? 'Analyzing...' : 'Start analysis'}
               </button>
             </section>
+
+            {/* Error Display */}
+            {error && (
+              <section className="px-4 pt-4">
+                <p className="text-red-600 font-bold">Error: {error}</p>
+              </section>
+            )}
 
             {/* Results */}
             <section className="px-4 pt-4">
               <h3 className="text-lg font-bold">Results</h3>
-              <p>No results yet. Upload a file to start analysis.</p>
+              {isLoading && <p>Loading results...</p>}
+              {!isLoading && !predictionResult && !error && (
+                <p>No results yet. Upload a file and click "Start analysis".</p>
+              )}
+              {predictionResult && (
+                <div className="p-4 border rounded-md bg-gray-50">
+                  <p className="text-lg"><strong>Prediction:</strong> <span className={predictionResult.prediction_label?.includes("Detected") ? "text-red-600 font-bold" : "text-green-600 font-bold"}>{predictionResult.prediction_label}</span></p>
+                  <p><strong>Probability of Atrial Fibrillation:</strong> {(predictionResult.probability_afib * 100).toFixed(2)}%</p>
+                  {/* You can display all_class_probabilities if you want */}
+                  {/* <p>All Probabilities: {JSON.stringify(predictionResult.all_class_probabilities)}</p> */}
+                </div>
+              )}
             </section>
           </div>
         </main>
