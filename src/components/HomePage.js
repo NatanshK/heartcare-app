@@ -161,9 +161,13 @@ export default function HomePage() {
                   </li>
                 </ul>
               </div>
-              <button className="mb-6 rounded-xl bg-gray-100 px-5 py-3 font-bold text-gray-700 hover:bg-gray-200 transition-colors">
-                Download sample CSV 
-              </button>
+              <a
+                href="/sample_ecg.csv" // Path relative to the public folder
+                download="sample_ecg_for_afib_detector.csv" // Suggested filename for the user when they download
+                className="inline-block mb-6 rounded-xl bg-gray-100 px-5 py-3 font-bold text-gray-700 hover:bg-gray-200 transition-colors no-underline" // Added inline-block and no-underline for button-like appearance
+                >
+                Download sample CSV
+              </a>
             </section>
 
             {/* File Upload */}
