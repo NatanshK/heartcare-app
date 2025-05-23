@@ -32,9 +32,9 @@ export default function HomePage() {
           </div>
           <div className="flex flex-1 justify-end gap-8">
             <nav className="flex items-center gap-9 text-[#181112] text-sm font-medium">
-              <a href="#">How it works</a>
-              <a href="#">Pricing</a>
-              <a href="#">FAQs</a>
+              <a href="/how-it-works">How it works</a>
+              <a href="/pricing">Pricing</a>
+              <a href="/faqs">FAQs</a>
             </nav>
             <div className="flex gap-2">
               <button className="rounded-xl bg-[#e61942] px-4 py-2 text-sm font-bold text-white">
