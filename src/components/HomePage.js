@@ -1,80 +1,74 @@
-// src/components/HomePage.js
-import React, { useState } from 'react';
+import React, { useState } from 'react'
+import iitrLogo from '../assets/iitr_logo.svg'
 
-// Import the SVG logo. React can often handle SVG imports directly.
-// If this direct import doesn't work as an image source,
-// we can use it as a React component (see alternative below).
-import iitrLogo from '../assets/iitr_logo.svg'; // Assuming path from src/components/ to src/assets/
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 
 export default function HomePage() {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [fileName, setFileName] = useState('or drag and drop the file here');
-  const [predictionResult, setPredictionResult] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [fileName, setFileName] = useState('or drag and drop the file here')
+  const [predictionResult, setPredictionResult] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
+    const file = event.target.files[0]
     if (file) {
-      if (file.type === "text/csv" || file.name.toLowerCase().endsWith('.csv')) {
-        setSelectedFile(file);
-        setFileName(file.name);
-        setPredictionResult(null);
-        setError('');
+      if (file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv')) {
+        setSelectedFile(file)
+        setFileName(file.name)
+        setPredictionResult(null)
+        setError('')
       } else {
-        setSelectedFile(null);
-        setFileName('Please upload a valid .csv file');
-        setError('Invalid file type. Please upload a .csv file.');
-        event.target.value = null; 
+        setSelectedFile(null)
+        setFileName('Please upload a valid .csv file')
+        setError('Invalid file type. Please upload a .csv file.')
+        event.target.value = null
       }
     } else {
-      setSelectedFile(null);
-      setFileName('or drag and drop the file here');
+      setSelectedFile(null)
+      setFileName('or drag and drop the file here')
     }
-  };
+  }
 
   const handleStartAnalysis = async () => {
     if (!API_BASE_URL) {
-      setError('API URL is not configured. Please check environment variables.');
-      console.error('Error: REACT_APP_API_BASE_URL is not set.');
-      return;
+      setError('API URL is not configured. Please check environment variables.')
+      console.error('Error: REACT_APP_API_BASE_URL is not set.')
+      return
     }
     if (!selectedFile) {
-      setError('Please select a CSV file first.');
-      return;
+      setError('Please select a CSV file first.')
+      return
     }
 
-    setIsLoading(true);
-    setError('');
-    setPredictionResult(null);
+    setIsLoading(true)
+    setError('')
+    setPredictionResult(null)
 
-    const formData = new FormData();
-    formData.append('ecg_file', selectedFile);
+    const formData = new FormData()
+    formData.append('ecg_file', selectedFile)
 
     try {
       const response = await fetch(`${API_BASE_URL}/predict`, {
         method: 'POST',
         body: formData,
-      });
+      })
 
-      setIsLoading(false);
-      const responseData = await response.json();
+      setIsLoading(false)
+      const responseData = await response.json()
 
       if (!response.ok) {
-        const errorMessage = responseData.error || response.statusText || `HTTP error! status: ${response.status}`;
-        throw new Error(errorMessage);
+        const errorMessage = responseData.error || response.statusText || `HTTP error! status: ${response.status}`
+        throw new Error(errorMessage)
       }
       
-      setPredictionResult(responseData);
-
+      setPredictionResult(responseData)
     } catch (err) {
-      console.error('API Call error:', err);
-      setIsLoading(false);
-      setError(err.message || 'Failed to get prediction. Check console for details.');
+      console.error('API Call error:', err)
+      setIsLoading(false)
+      setError(err.message || 'Failed to get prediction. Check console for details.')
     }
-  };
+  }
 
   return (
     <div
@@ -82,13 +76,11 @@ export default function HomePage() {
       style={{ fontFamily: 'Lexend, "Noto Sans", sans-serif' }}
     >
       <div className="flex h-full flex-grow flex-col">
-        {/* ─── HEADER ───────────────────────────────────────────────────── */}
         <header className="flex items-center justify-between border-b border-[#f4f0f1] px-10 py-3">
-          {/* Left side: HeartCare Logo and Name */}
           <div className="flex items-center gap-4 text-[#181112]">
-            <div className="w-20 h-20"> {/* Your original HeartCare SVG logo */}
+            <div className="w-20 h-20">
               <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g clipPath="url(#clip0_heartcare_logo)"> {/* Changed clipPath ID to be unique */}
+                <g clipPath="url(#clip0_heartcare_logo)">
                   <path
                     fillRule="evenodd"
                     clipRule="evenodd"
@@ -97,7 +89,7 @@ export default function HomePage() {
                   />
                 </g>
                 <defs>
-                  <clipPath id="clip0_heartcare_logo"> {/* Changed clipPath ID */}
+                  <clipPath id="clip0_heartcare_logo">
                     <rect width="48" height="48" fill="white" />
                   </clipPath>
                 </defs>
@@ -106,29 +98,23 @@ export default function HomePage() {
             <h2 className="text-[#181112] text-lg font-bold">HeartCare</h2>
           </div>
 
-          {/* Right side: Nav links and IITR Logo */}
-          <div className="flex items-center gap-8"> {/* Combined nav and new logo container */}
-            <nav className="flex items-center text-[#181112] text-sm font-medium"> {/* Removed gap-9 as there's only one item now, or adjust as needed */}
+          <div className="flex items-center gap-8">
+            <nav className="flex items-center text-[#181112] text-sm font-medium">
               <a href="/how-it-works">How it works</a>
             </nav>
             
-            {/* IIT Roorkee Logo - Placed where Login/Signup buttons were */}
             <div className="flex items-center">
               <img 
                 src={iitrLogo} 
                 alt="IIT Roorkee Logo" 
                 className="h-20 w-auto" 
               />
-              {/* Optional: Text next to logo if needed */}
-              {/* <span className="ml-2 text-sm text-gray-600">IIT Roorkee</span> */}
             </div>
           </div>
         </header>
 
-        {/* ─── MAIN CONTENT ─────────────────────────────────────────────── */}
-        <main className="flex flex-1 justify-center px-4 sm:px-6 lg:px-40 py-5"> {/* Adjusted padding for responsiveness */}
+        <main className="flex flex-1 justify-center px-4 sm:px-6 lg:px-40 py-5">
           <div className="flex max-w-[960px] flex-1 flex-col">
-            {/* Hero */}
             <div className="flex flex-wrap justify-between gap-3 p-4">
               <div className="flex min-w-[18rem] flex-col gap-3">
                 <p className="text-[#181112] text-4xl font-bold">
@@ -140,13 +126,11 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Instructions */}
             <section className="px-4">
               <h3 className="text-lg font-bold">Instructions for CSV format</h3>
               <div className="pb-3 pt-1 text-base text-gray-700">
                 Please ensure your CSV file is formatted as follows:
-                {/* MODIFIED UL and LI classes for better hanging indent */}
-                <ul className="list-disc list-outside pl-5 space-y-1 my-2"> {/* Increased pl, list-outside */}
+                <ul className="list-disc list-outside pl-5 space-y-1 my-2">
                   <li>
                     <span>The <strong>first row must be the header row</strong>, containing the column names (e.g., "I", "II", "III", "aVR", "aVL", "aVF", "V1", "V2", "V3", "V4", "V5", "V6").</span>
                   </li>
@@ -162,15 +146,14 @@ export default function HomePage() {
                 </ul>
               </div>
               <a
-                href="/sample_ecg.csv" // Path relative to the public folder
-                download="sample_ecg_for_afib_detector.csv" // Suggested filename for the user when they download
-                className="inline-block mb-6 rounded-xl bg-gray-100 px-5 py-3 font-bold text-gray-700 hover:bg-gray-200 transition-colors no-underline" // Added inline-block and no-underline for button-like appearance
-                >
+                href="/sample_ecg.csv"
+                download="sample_ecg_for_afib_detector.csv"
+                className="inline-block mb-6 rounded-xl bg-gray-100 px-5 py-3 font-bold text-gray-700 hover:bg-gray-200 transition-colors no-underline"
+              >
                 Download sample CSV
               </a>
             </section>
 
-            {/* File Upload */}
             <section className="px-4">
               <h3 className="text-lg font-bold pb-2 pt-4">Upload your CSV file</h3>
               <label className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#e61942] px-5 py-3 text-white w-max hover:bg-red-700 transition-colors">
@@ -185,7 +168,7 @@ export default function HomePage() {
                 </svg>
                 <span>Choose file</span>
               </label>
-              <p className="pb-3 pt-1 text-sm text-gray-600">{fileName}</p> 
+              <p className="pb-3 pt-1 text-sm text-gray-600">{fileName}</p>
               
               <button 
                 className="rounded-xl bg-[#e61942] px-4 py-2 text-sm font-bold text-white disabled:opacity-50 hover:bg-red-700 transition-colors"
@@ -196,7 +179,6 @@ export default function HomePage() {
               </button>
             </section>
 
-            {/* Error Display */}
             {error && (
               <section className="px-4 pt-4">
                 <div className="p-3 border border-red-300 bg-red-50 rounded-md">
@@ -205,7 +187,6 @@ export default function HomePage() {
               </section>
             )}
 
-            {/* Results */}
             <section className="px-4 pt-4">
               <h3 className="text-lg font-bold">Results</h3>
               {isLoading && <p className="text-gray-600">Loading results...</p>}
@@ -231,5 +212,5 @@ export default function HomePage() {
         </main>
       </div>
     </div>
-  );
+  )
 }
