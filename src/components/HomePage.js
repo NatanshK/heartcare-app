@@ -11,17 +11,18 @@ export default function HomePage() {
   const [error, setError] = useState('')
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0]
+  const file = event.target.files[0]
     if (file) {
-      if (file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv')) {
+      const fileNameLower = file.name.toLowerCase();
+      if (fileNameLower.endsWith('.csv') || fileNameLower.endsWith('.xls') || fileNameLower.endsWith('.xlsx')) {
         setSelectedFile(file)
         setFileName(file.name)
         setPredictionResult(null)
         setError('')
       } else {
         setSelectedFile(null)
-        setFileName('Please upload a valid .csv file')
-        setError('Invalid file type. Please upload a .csv file.')
+        setFileName('Please upload a valid .csv or Excel file')
+        setError('Invalid file type. Please upload a .csv, .xls, or .xlsx file.')
         event.target.value = null
       }
     } else {
@@ -37,7 +38,7 @@ export default function HomePage() {
       return
     }
     if (!selectedFile) {
-      setError('Please select a CSV file first.')
+      setError('Please select a file first.')
       return
     }
 
@@ -121,15 +122,15 @@ export default function HomePage() {
                   Detect atrial fibrillation with ECG data
                 </p>
                 <p className="text-[#88636a] text-sm">
-                  Upload a 12-lead ECG CSV file and we'll analyze it for atrial fibrillation
+                  Upload a 12-lead ECG data file (CSV or Excel) and we'll analyze it for atrial fibrillation
                 </p>
               </div>
             </div>
 
             <section className="px-4">
-              <h3 className="text-lg font-bold">Instructions for CSV format</h3>
+              <h3 className="text-lg font-bold">Instructions for file format</h3>
               <div className="pb-3 pt-1 text-base text-gray-700">
-                Please ensure your CSV file is formatted as follows:
+                Please ensure your file is formatted as follows:
                 <ul className="list-disc list-outside pl-5 space-y-1 my-2">
                   <li>
                     <span>The <strong>first row must be the header row</strong>, containing the column names (e.g., "I", "II", "III", "aVR", "aVL", "aVF", "V1", "V2", "V3", "V4", "V5", "V6").</span>
@@ -155,11 +156,11 @@ export default function HomePage() {
             </section>
 
             <section className="px-4">
-              <h3 className="text-lg font-bold pb-2 pt-4">Upload your CSV file</h3>
+              <h3 className="text-lg font-bold pb-2 pt-4">Upload your file</h3>
               <label className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#e61942] px-5 py-3 text-white w-max hover:bg-red-700 transition-colors">
                 <input
                   type="file"
-                  accept=".csv,text/csv"
+                  accept=".csv,.xls,.xlsx"
                   className="hidden"
                   onChange={handleFileChange}
                 />
